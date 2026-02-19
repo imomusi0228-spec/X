@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: twitter-promo-bot
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node src/index.js
+    envVars:
+      - key: APP_KEY
+        sync: false
+      - key: APP_SECRET
+        sync: false
+      - key: ACCESS_TOKEN
+        sync: false
+      - key: ACCESS_SECRET
+        sync: false
+      - key: TWEET_MESSAGE
+        sync: false
+      - key: CRON_SCHEDULE
+        value: "0 */4 * * *"
