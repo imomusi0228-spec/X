@@ -14,6 +14,20 @@ console.log('--- Twitter Promotion Bot Started ---');
 console.log(`Target Schedule: ${config.cronSchedule}`);
 console.log(`Loaded Messages: ${config.tweetMessages ? config.tweetMessages.length : 1}`);
 
+// Keep-Alive Ping for Render Free Tier
+// Pings the external URL every 14 minutes to prevent sleeping
+const RENDER_EXTERNAL_URL = process.env.RENDER_EXTERNAL_URL;
+if (RENDER_EXTERNAL_URL) {
+    console.log(`Keep-Alive: Configured for ${RENDER_EXTERNAL_URL}`);
+    setInterval(() => {
+        http.get(RENDER_EXTERNAL_URL, (res) => {
+            console.log(`Keep-Alive Ping: status code ${res.statusCode}`);
+        }).on('error', (e) => {
+            console.error(`Keep-Alive Ping Error: ${e.message}`);
+        });
+    }, 14 * 60 * 1000); // 14 minutes
+}
+
 const tweet = async () => {
     try {
         console.log(`[${new Date().toISOString()}] Sending tweet...`);
