@@ -2,6 +2,7 @@ const cron = require('node-cron');
 const rwClient = require('./twitterClient');
 const config = require('../config');
 const http = require('http');
+const https = require('https');
 
 // Render requires a port to be bound
 const port = process.env.PORT || 3000;
@@ -19,8 +20,9 @@ console.log(`Loaded Messages: ${config.tweetMessages ? config.tweetMessages.leng
 const RENDER_EXTERNAL_URL = process.env.RENDER_EXTERNAL_URL;
 if (RENDER_EXTERNAL_URL) {
     console.log(`Keep-Alive: Configured for ${RENDER_EXTERNAL_URL}`);
+    const pingLib = RENDER_EXTERNAL_URL.startsWith('https') ? https : http;
     setInterval(() => {
-        http.get(RENDER_EXTERNAL_URL, (res) => {
+        pingLib.get(RENDER_EXTERNAL_URL, (res) => {
             console.log(`Keep-Alive Ping: status code ${res.statusCode}`);
         }).on('error', (e) => {
             console.error(`Keep-Alive Ping Error: ${e.message}`);
