@@ -61,5 +61,5 @@ cron.schedule(config.cronSchedule, () => {
     tweet();
 });
 
-// Optional: Run once on startup to verify (uncomment if needed)
-// tweet();
+// Run once on startup to verify
+tweet();
