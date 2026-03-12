@@ -17,17 +17,36 @@ console.log(`Loaded Messages: ${config.tweetMessages ? config.tweetMessages.leng
 
 // Keep-Alive Ping for Render Free Tier
 // Pings the external URL every 14 minutes to prevent sleeping
-const RENDER_EXTERNAL_URL = process.env.RENDER_EXTERNAL_URL;
+let RENDER_EXTERNAL_URL = process.env.RENDER_EXTERNAL_URL;
+
 if (RENDER_EXTERNAL_URL) {
+    // Add protocol if missing
+    if (!RENDER_EXTERNAL_URL.startsWith('http://') && !RENDER_EXTERNAL_URL.startsWith('https://')) {
+        RENDER_EXTERNAL_URL = 'https://' + RENDER_EXTERNAL_URL;
+        console.log(`Keep-Alive: No protocol detected, normalized to ${RENDER_EXTERNAL_URL}`);
+    }
+
     console.log(`Keep-Alive: Configured for ${RENDER_EXTERNAL_URL}`);
-    const pingLib = RENDER_EXTERNAL_URL.startsWith('https') ? https : http;
-    setInterval(() => {
+    
+    const ping = () => {
+        const pingLib = RENDER_EXTERNAL_URL.startsWith('https') ? https : http;
         pingLib.get(RENDER_EXTERNAL_URL, (res) => {
-            console.log(`Keep-Alive Ping: status code ${res.statusCode}`);
+            console.log(`[${new Date().toISOString()}] Keep-Alive Ping: status code ${res.statusCode}`);
         }).on('error', (e) => {
-            console.error(`Keep-Alive Ping Error: ${e.message}`);
+            console.error(`[${new Date().toISOString()}] Keep-Alive Ping Error: ${e.message}`);
         });
-    }, 14 * 60 * 1000); // 14 minutes
+    };
+
+    // Run every 14 minutes
+    setInterval(ping, 14 * 60 * 1000);
+    
+    // Also run once shortly after startup
+    setTimeout(ping, 30 * 1000); 
+} else {
+    console.warn('--- WARNING ---');
+    console.warn('RENDER_EXTERNAL_URL is not set. The bot will likely SLEEP on Render Free Tier.');
+    console.warn('Please set RENDER_EXTERNAL_URL in your environment variables.');
+    console.warn('---------------');
 }
 
 const tweet = async () => {
